@@ -1,0 +1,10 @@
+Package: Gen2Met
+Type: Package
+Title: Gen2Met: an R package to find metabolites associated with a list of genes
+Version: 0.1.0
+Author: Valentino Palombo
+Maintainer: Valentino Palombo <valentino.palombo@gmail.com>
+Description: Gen2Met is an R package set to identify a list of metabolites that are candidate to be associated with a list of genes based on information retieved on KEGG databases. 
+License: Artistic-2.0
+Encoding: UTF-8
+LazyData: true
