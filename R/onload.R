@@ -4,7 +4,7 @@
   #mymsg <- paste(mymsg,"For more information use: help(package = 'Gen2Met')\n")
   #mymsg <- paste(mymsg,"                          browseVignettes(package = 'Gen2Met')\n\n")
   mymsg <- paste(mymsg,"Citation:\n")
-  mymsg <- paste(mymsg,"  Author: V. Palombo\n")
+  mymsg <- paste(mymsg,"  Author: V. Palombo valentino.palombo@gmai.com\n")
   mymsg <- paste(mymsg,"  Title: Gen2Met: an R package in multi-omic Era\n")
   #mymsg <- paste(mymsg,"  Journal: \n")
   #mymsg <- paste(mymsg,"  \n")
