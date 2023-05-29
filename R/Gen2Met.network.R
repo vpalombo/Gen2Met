@@ -264,17 +264,39 @@ Gen2Met.network <- function(
   cat(" Global Pathways will be excluded in the visual output! \n")
   path_to_remove <- c("map01100", "map01110", "map01120") #because too general pathways
 
-  path2genes <- path2genes[!(path2genes$id_to %in% path_to_remove),]
-  path2genes$interaction <- "gene2path"
-  path2path <- path2path[!(path2path$id_to %in% path_to_remove),]
-  path2path <- path2path[!(path2path$id_from %in% path_to_remove),]
-  path2path$interaction <- "path2path"
-  path2mod <-  path2mod[!(path2mod$id_to %in% path_to_remove),]
-  path2mod$interaction <- "mod2path"
-  mod2genes$interaction <- "gene2mod"
-  comp2mod$interaction <- "mod2comp"
-  gene2Reaction$interaction <- "reaction2gene"
-  comp2Reaction$interaction <- "comp2reaction"
+  if (length(path2genes$to)>0){
+    path2genes <- path2genes[!(path2genes$id_to %in% path_to_remove),]
+    path2genes$interaction <- "gene2path"
+  }
+
+  if (length(path2genes$to)>0){
+    path2genes <- path2genes[!(path2genes$id_to %in% path_to_remove),]
+  }
+
+  if (length(path2path$to)>0){
+    path2path <- path2path[!(path2path$id_to %in% path_to_remove),]
+    path2path <- path2path[!(path2path$id_from %in% path_to_remove),]
+    path2path$interaction <- "path2path"
+  }
+
+  if (length(path2mod$to)>0){
+    path2mod <-  path2mod[!(path2mod$id_to %in% path_to_remove),]
+    path2mod$interaction <- "mod2path"
+  }
+
+  if (length(mod2genes$to)>0){
+    mod2genes$interaction <- "gene2mod"
+  }
+
+
+  if (length(comp2mod$to)>0){
+    comp2mod$interaction <- "mod2comp"
+  }
+
+  if (length(gene2Reaction$to)>0){
+    gene2Reaction$interaction <- "reaction2gene"
+    comp2Reaction$interaction <- "comp2reaction"
+  }
 
   data <- data.frame(rbind(path2genes,
                            path2path,
