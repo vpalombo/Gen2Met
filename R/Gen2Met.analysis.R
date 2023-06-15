@@ -107,29 +107,31 @@ Gen2Met.analysis <- function(
   cat(" Please wait... It could take a while depending on the number of modules investigated! \n")
   #modules <- str_replace_all(modules, pattern = "vvi_", "")
   #query on KEGG
-  for (i in 1:length(modules)){
-    out_nodes <- NULL
-    print(i)
-    print(Sys.time())
-    name <- KEGGREST::keggGet(modules[i])[[1]]$NAME
-    dataDownloaded <- KEGGREST::keggGet(modules[i])[[1]]
-    out_nodes <- data.frame(to = dataDownloaded$PATHWAY)
-    if (dim(out_nodes)[1] != 0){
-      out_nodes$id_to <- rownames(out_nodes)
-      if(nrow(out_nodes)>0){
-        rownames(out_nodes) <- NULL
-        out_nodes$id_from <- modules[i]
-        out_nodes$from <- name
-        path2mod <- rbind(path2mod, out_nodes)
-      }
+  if (!is.null(modules)){
+    for (i in 1:length(modules)){
       out_nodes <- NULL
-      out_nodes <- data.frame(to = dataDownloaded$COMPOUND)
-      if(nrow(out_nodes)>0){
+      print(i)
+      print(Sys.time())
+      name <- KEGGREST::keggGet(modules[i])[[1]]$NAME
+      dataDownloaded <- KEGGREST::keggGet(modules[i])[[1]]
+      out_nodes <- data.frame(to = dataDownloaded$PATHWAY)
+      if (dim(out_nodes)[1] != 0){
         out_nodes$id_to <- rownames(out_nodes)
-        rownames(out_nodes) <- NULL
-        out_nodes$id_from <- modules[i]
-        out_nodes$from <- name
-        comp2mod <- rbind(comp2mod, out_nodes)
+        if(nrow(out_nodes)>0){
+          rownames(out_nodes) <- NULL
+          out_nodes$id_from <- modules[i]
+          out_nodes$from <- name
+          path2mod <- rbind(path2mod, out_nodes)
+        }
+        out_nodes <- NULL
+        out_nodes <- data.frame(to = dataDownloaded$COMPOUND)
+        if(nrow(out_nodes)>0){
+          out_nodes$id_to <- rownames(out_nodes)
+          rownames(out_nodes) <- NULL
+          out_nodes$id_from <- modules[i]
+          out_nodes$from <- name
+          comp2mod <- rbind(comp2mod, out_nodes)
+        }
       }
     }
   }
@@ -140,36 +142,38 @@ Gen2Met.analysis <- function(
   cat("\nA total of", paste(length(reaction), "reactions were associated with your genelist based on information retrieved from KEGG!", "\n\nGen2Met is searching for compounds in association with these reactions ... \n"))
   cat(" Please wait... It could take a while depending on the number of reactions investigated! \n")
   comp2Reaction <- NULL
-  for (i in 1:length(reaction)){
-    print(i)
-    print(Sys.time())
-    name <- KEGGREST::keggGet(reaction[i])[[1]]$DEFINITION
-    dataDownloaded <- KEGGREST::keggGet(reaction[i])[[1]]
-    bridge <- data.frame(to = dataDownloaded$EQUATION)
-    if (dim(bridge)[1] != 0){
-      subsetted <- bridge[grepl("C*", bridge)]
-      subsetted <- stringr::str_remove_all(subsetted, c("[+]"))
-      subsetted <- stringr::str_remove_all(subsetted, c("<=>"))
-      subsetted <- stringr::str_remove_all(subsetted, c("[(n)]"))
-      subsetted <- stringr::str_remove_all(subsetted, c("-1"))
-      subsetted <- scan(text = subsetted, what = " ")
-      subsetted <- subsetted[grepl("C", subsetted)]
-      subsetted <- unique(subsetted)
-      subsetted <- subsetted[!(subsetted %in% c("C013551", "C035411", "C007182", "C02128m", "C00039m"))] #compounds with no entry in KEGG
-      if(length(subsetted)>0){
-        if(length(subsetted)>1){
-          exp_file <- data.frame(id_to = reaction[i], id_from = do.call(rbind, strsplit(subsetted, "-", fixed=TRUE)))
-          exp_file$to <- name
-          for (k in 1:length(exp_file$id_to)){
-            exp_file$from[k] <- paste(KEGGREST::keggGet(exp_file$id_from[k])[[1]]$NAME, collapse = " ")
+  if (!is.null(reaction)){
+    for (i in 1:length(reaction)){
+      print(i)
+      print(Sys.time())
+      name <- KEGGREST::keggGet(reaction[i])[[1]]$DEFINITION
+      dataDownloaded <- KEGGREST::keggGet(reaction[i])[[1]]
+      bridge <- data.frame(to = dataDownloaded$EQUATION)
+      if (dim(bridge)[1] != 0){
+        subsetted <- bridge[grepl("C*", bridge)]
+        subsetted <- stringr::str_remove_all(subsetted, c("[+]"))
+        subsetted <- stringr::str_remove_all(subsetted, c("<=>"))
+        subsetted <- stringr::str_remove_all(subsetted, c("[(n)]"))
+        subsetted <- stringr::str_remove_all(subsetted, c("-1"))
+        subsetted <- scan(text = subsetted, what = " ")
+        subsetted <- subsetted[grepl("C", subsetted)]
+        subsetted <- unique(subsetted)
+        subsetted <- subsetted[!(subsetted %in% c("C013551", "C035411", "C007182", "C02128m", "C00039m"))] #compounds with no entry in KEGG
+        if(length(subsetted)>0){
+          if(length(subsetted)>1){
+            exp_file <- data.frame(id_to = reaction[i], id_from = do.call(rbind, strsplit(subsetted, "-", fixed=TRUE)))
+            exp_file$to <- name
+            for (k in 1:length(exp_file$id_to)){
+              exp_file$from[k] <- paste(KEGGREST::keggGet(exp_file$id_from[k])[[1]]$NAME, collapse = " ")
+            }
+          }else{
+            exp_file <- data.frame(id_to=reaction[i], id_from=subsetted)
+            exp_file$to <- name
+            exp_file$from <- paste(KEGGREST::keggGet(exp_file$id_from)[[1]]$NAME, collapse = " ")
           }
-        }else{
-          exp_file <- data.frame(id_to=reaction[i], id_from=subsetted)
-          exp_file$to <- name
-          exp_file$from <- paste(KEGGREST::keggGet(exp_file$id_from)[[1]]$NAME, collapse = " ")
-        }
-        if(nrow(exp_file)>0){
-          comp2Reaction <- rbind(comp2Reaction, exp_file)
+          if(nrow(exp_file)>0){
+            comp2Reaction <- rbind(comp2Reaction, exp_file)
+          }
         }
       }
     }
