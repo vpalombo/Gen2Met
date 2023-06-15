@@ -6,6 +6,7 @@
   mymsg <- paste(mymsg,"Citation:\n")
   mymsg <- paste(mymsg,"  Author: V. Palombo valentino.palombo@gmai.com\n")
   mymsg <- paste(mymsg,"  Title: Gen2Met: an R package in multi-omic Era\n")
+  mymsg <- paste(mymsg,"  link: https://github.com/vpalombo\n")
   #mymsg <- paste(mymsg,"  Journal: \n")
   #mymsg <- paste(mymsg,"  \n")
   packageStartupMessage(mymsg)
